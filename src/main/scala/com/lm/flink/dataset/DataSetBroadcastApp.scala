@@ -22,6 +22,9 @@ object DataSetBroadcastApp {
     val toBroadcast  = env.fromElements(1,2,3)
 
     val data = env.fromElements("a","b")
+    /**
+     * RichMapFunction 富函数上下文信息
+     */
     val result = data.map(new RichMapFunction[String,String](){
       var mList: mutable.Buffer[String] = _
       override def open(config: Configuration): Unit = {
