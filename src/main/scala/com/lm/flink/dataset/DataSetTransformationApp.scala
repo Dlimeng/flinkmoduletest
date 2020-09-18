@@ -24,6 +24,10 @@ object DataSetTransformationApp {
 
   }
 
+  /**
+   * 笛卡尔积
+   * @param env
+   */
   def crossFunction(env:ExecutionEnvironment): Unit ={
     val info1 = List("曼联","曼城")
     val info2 = List(3,1,0)
@@ -70,6 +74,10 @@ object DataSetTransformationApp {
 
   }
 
+  /**
+   * 左外连接
+   * @param env
+   */
   def outerLeftOuterJoinFunction(env:ExecutionEnvironment): Unit ={
 
     val info1 = ListBuffer[(Int, String)]() // 编号  名字
@@ -98,6 +106,10 @@ object DataSetTransformationApp {
     }).print()
   }
 
+  /**
+   * 右外连接
+   * @param env
+   */
   def outerRightOuterJoin(env:ExecutionEnvironment): Unit ={
 
     val info1 = ListBuffer[(Int, String)]() // 编号  名字
