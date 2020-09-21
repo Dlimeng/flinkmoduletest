@@ -20,13 +20,13 @@ class RichSinkFunctionToMySQL extends RichSinkFunction[SourceBean]{
   // 建立连接
   def getConnection():Connection = {
     var conn: Connection = null
-    val DB_URL: String = "jdbc:mysql://192.168.200.115:3306/kd_test?useSSL=false"
-    val USER: String = "root"
-    val PASS: String = "root"
+    val url: String = "jdbc:mysql://192.168.200.115:3306/kd_test?useSSL=false"
+    val user: String = "root"
+    val password: String = "root"
 
     try{
       Class.forName("com.mysql.jdbc.Driver")
-      conn = DriverManager.getConnection(DB_URL, USER, PASS)
+      conn = DriverManager.getConnection(url, user, password)
     } catch {
       case _: Throwable => println("due to the connect error then exit!")
     }
@@ -40,7 +40,7 @@ class RichSinkFunctionToMySQL extends RichSinkFunction[SourceBean]{
   override def open(parameters: Configuration): Unit = {
     super.open(parameters)
     conn = getConnection()
-    val sql: String = "insert into Person(id, name, password, age) values(?, ?, ?, ?);"
+    val sql: String = "insert into soure1(id, name , age,ctime) values(?, ?, ?, ?);"
     ps = this.conn.prepareStatement(sql)
   }
 

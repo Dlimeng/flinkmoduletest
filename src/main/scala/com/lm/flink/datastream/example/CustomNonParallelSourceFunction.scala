@@ -10,7 +10,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction
  *  非并行
  */
 class CustomNonParallelSourceFunction extends SourceFunction[Long] {
-  var count = 1L
+  var count = 0L
   var isRunning = true
 
   override def run(sourceContext: SourceFunction.SourceContext[Long]): Unit = {

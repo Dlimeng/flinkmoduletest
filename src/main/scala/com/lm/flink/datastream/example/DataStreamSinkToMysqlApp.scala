@@ -16,17 +16,16 @@ import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 object DataStreamSinkToMysqlApp {
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
-    val text = env.socketTextStream("localhost",9999)
 
-    //text.print()
+
     import org.apache.flink.api.scala._
-    val personStream = text.map(new MapFunction[String, SourceBean] {
-      override def map(value: String): SourceBean = {
-        val spilt = value.split(",")
-        SourceBean(spilt(0).toString, spilt(1).toString, Integer.parseInt(spilt(2)),new Date())
-      }
+    val data = env.addSource(new MySQLRichParallelSourceFunction)
+    val stream = data.map(m=>{
+      val id = m.id +"1"
+      SourceBean(id,m.name,m.age,m.ctime)
     })
-    personStream.addSink(new RichSinkFunctionToMySQL)
+
+    stream.addSink(new RichSinkFunctionToMySQL)
 
 
     env.execute("DataStreamSinkToMysqlApp")

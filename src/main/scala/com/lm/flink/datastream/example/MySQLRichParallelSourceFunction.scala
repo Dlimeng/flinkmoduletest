@@ -28,7 +28,7 @@ class MySQLRichParallelSourceFunction extends RichSourceFunction[SourceBean] {
     val password: String = "root"
 
     try {
-      Class.forName("com.mysql.cj.jdbc.Driver")
+      Class.forName("com.mysql.jdbc.Driver")
       conn = DriverManager.getConnection(url, user, password)
     }catch {
       case _: Throwable => println("due to the connect error then exit!")
@@ -39,6 +39,7 @@ class MySQLRichParallelSourceFunction extends RichSourceFunction[SourceBean] {
 
   override def run(sourceContext: SourceFunction.SourceContext[SourceBean]): Unit = {
     val resSet:ResultSet = ps.executeQuery()
+
     while(isRUNNING & resSet.next()) {
       sourceContext.collect(SourceBean(resSet.getString("id"),resSet.getString("name"),resSet.getInt("age"),resSet.getDate("ctime")))
     }
