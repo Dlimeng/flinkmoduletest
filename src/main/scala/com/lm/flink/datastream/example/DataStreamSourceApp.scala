@@ -1,7 +1,11 @@
 package com.lm.flink.datastream.example
 
-import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-
+import org.apache.flink.api.common.functions.FlatMapFunction
+import org.apache.flink.configuration.{ConfigConstants, Configuration}
+import org.apache.flink.streaming.api.scala.{DataStream}
+import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.apache.flink.util.Collector
+import org.apache.flink.api.scala._
 /**
  * @Classname DataStreamSourceApp
  * @Description TODO
@@ -10,9 +14,10 @@ import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironm
  */
 object DataStreamSourceApp {
   def main(args: Array[String]): Unit = {
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
-
-    socketStream(env)
+   val env = StreamExecutionEnvironment.getExecutionEnvironment
+//
+//   // socketStream(env)
+//    parallelSourceFunction(env)
     env.execute("DataStreamSourceApp")
   }
 
