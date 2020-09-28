@@ -9,3 +9,5 @@ import java.util.Date
  * @Created by limeng
  */
 case class SourceBean(id:String,name:String,age:Int,ctime:Date) extends Serializable
+
+case class WordWithCount(word:String,count:Long) extends Serializable
