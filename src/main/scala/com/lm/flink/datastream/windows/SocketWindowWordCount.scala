@@ -21,12 +21,12 @@ object SocketWindowWordCount {
 
     val windowCounts = line.flatMap(new FlatMapFunction[String,WordWithCount] {
       override def flatMap(value: String, out: Collector[WordWithCount]): Unit = {
-            for(word <- value.split("\\s")){
-              out.collect(new WordWithCount(word,1L))
-            }
+        for(word <- value.split("\\s")){
+          out.collect(new WordWithCount(word,1L))
+        }
       }
     }).keyBy("word")
-      .timeWindow(Time.seconds(5),Time.seconds(1))
+      .timeWindow(Time.seconds(5),Time.seconds(10))
       .reduce(new ReduceFunction[WordWithCount] {
         override def reduce(a: WordWithCount, b: WordWithCount): WordWithCount = {
           return new WordWithCount(a.word,a.count+b.count)
