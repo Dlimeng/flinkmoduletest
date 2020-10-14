@@ -21,6 +21,7 @@ object KafkaProducer {
     props.setProperty("batch.size", "16384")
     props.setProperty("linger.ms", "1")
     props.setProperty("buffer.memory", "33554432")
+    props.setProperty("group.id","group-test")
     props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getCanonicalName)
     props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getCanonicalName)
 

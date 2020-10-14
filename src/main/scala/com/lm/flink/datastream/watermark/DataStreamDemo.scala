@@ -1,4 +1,4 @@
-package com.lm.flink.watermark
+package com.lm.flink.datastream.watermark
 
 import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.streaming.api.TimeCharacteristic
