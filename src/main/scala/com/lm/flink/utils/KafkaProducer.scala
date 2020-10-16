@@ -30,6 +30,7 @@ object KafkaProducer {
 
     while (true){
       producer.send(new ProducerRecord[String, String]("fk_string_topic", String.valueOf(random.nextInt(100))))
+      Thread.sleep(2000)
     }
 
   }
