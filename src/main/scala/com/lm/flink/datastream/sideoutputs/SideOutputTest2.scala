@@ -26,7 +26,7 @@ object SideOutputTest2 {
 
     env.setStateBackend(new MemoryStateBackend(100, false))
 
-    val socketData: DataStream[String] = env.socketTextStream("localhost", 9999)
+    val socketData: DataStream[String] = env.socketTextStream("192.168.200.116", 9999)
     socketData.print("input data")
 
     val outputStream: DataStream[MdMsg] = socketData.map(line => {
@@ -63,6 +63,5 @@ object SideOutputTest2 {
   }
 
   case class MdMsg(mdType:String, url:String, Time:Long)
-
 
 }
