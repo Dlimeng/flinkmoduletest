@@ -99,7 +99,6 @@ object IntervalJoin {
       }).print()
 
 
-
     env.execute("IntervalJoin")
 
   }
@@ -110,7 +109,6 @@ object IntervalJoin {
   case class StockSnapshot(mdTime:String,mdCode:String,mdValue:Double) extends Serializable {
     override def toString: String = mdTime +"#"+mdCode+"#"+mdValue
   }
-
 
 }
 

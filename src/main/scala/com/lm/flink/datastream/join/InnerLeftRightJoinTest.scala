@@ -1,8 +1,6 @@
 package com.lm.flink.datastream.join
 
 import java.lang
-import java.text.SimpleDateFormat
-
 import org.apache.flink.api.common.functions.CoGroupFunction
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks
@@ -29,25 +27,24 @@ object InnerLeftRightJoinTest {
     env.getConfig.setAutoWatermarkInterval(9000)
 
 
-    val dataStream1 = env.socketTextStream("localhost",9999)
-    val dataStream2 = env.socketTextStream("localhost",9998)
+    val dataStream1 = env.socketTextStream("localhost", 9999)
+    val dataStream2 = env.socketTextStream("localhost", 9998)
 
 
-    val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
     /**
      * operator操作
      * 数据格式：
-     *    tx:  2020/10/26 18:42:22,000002,10.2
-     *    md:  2020/10/26 18:42:22,000002,10.2
+     * tx:  2020/10/26 18:42:22,000002,10.2
+     * md:  2020/10/26 18:42:22,000002,10.2
      *
-     *  这里由于是测试，固水位线采用升序（即数据的Event Time 本身是升序输入）
+     * 这里由于是测试，固水位线采用升序（即数据的Event Time 本身是升序输入）
      */
     import org.apache.flink.api.scala._
     val dataStreamMap1 = dataStream1
-      .map(f=>{
-      val tokens = f.split(",")
-      StockTransaction(tokens(0),tokens(1),tokens(2).toDouble)
-    }).assignTimestampsAndWatermarks(new AssignerWithPeriodicWatermarks[StockTransaction]{
+      .map(f => {
+        val tokens = f.split(",")
+        StockTransaction(tokens(0), tokens(1), tokens(2).toDouble)
+      }).assignTimestampsAndWatermarks(new AssignerWithPeriodicWatermarks[StockTransaction] {
       var currentTimestamp = 0L
 
       val maxOutOfOrderness = 1000L
@@ -59,8 +56,8 @@ object InnerLeftRightJoinTest {
       }
 
       override def extractTimestamp(element: StockTransaction, previousElementTimestamp: Long): Long = {
-        val timestamp  = element.txTime.toLong
-        currentTimestamp = Math.max(timestamp,currentTimestamp)
+        val timestamp = element.txTime.toLong
+        currentTimestamp = Math.max(timestamp, currentTimestamp)
         println(s"get timestamp is $timestamp currentMaxTimestamp $currentTimestamp")
         currentTimestamp
       }
@@ -68,10 +65,10 @@ object InnerLeftRightJoinTest {
 
 
     val dataStreamMap2 = dataStream2
-      .map(f=>{
-      val tokens = f.split(",")
-      StockSnapshot(tokens(0),tokens(1),tokens(2).toDouble)
-    }).assignTimestampsAndWatermarks(new AssignerWithPeriodicWatermarks[StockSnapshot]{
+      .map(f => {
+        val tokens = f.split(",")
+        StockSnapshot(tokens(0), tokens(1), tokens(2).toDouble)
+      }).assignTimestampsAndWatermarks(new AssignerWithPeriodicWatermarks[StockSnapshot] {
       var currentTimestamp = 0L
 
       val maxOutOfOrderness = 1000L
@@ -83,8 +80,8 @@ object InnerLeftRightJoinTest {
       }
 
       override def extractTimestamp(element: StockSnapshot, previousElementTimestamp: Long): Long = {
-        val timestamp  = element.mdTime.toLong
-        currentTimestamp = Math.max(timestamp,currentTimestamp)
+        val timestamp = element.mdTime.toLong
+        currentTimestamp = Math.max(timestamp, currentTimestamp)
         println(s"get timestamp is $timestamp currentMaxTimestamp $currentTimestamp")
         currentTimestamp
       }
@@ -106,55 +103,88 @@ object InnerLeftRightJoinTest {
 
 
     val innerJoinedStream = joinedStream.apply(new InnerJoinFunction)
+    val leftJoinedStream = joinedStream.apply(new LeftJoinFunction)
+    val rightJoinedStream = joinedStream.apply(new RightJoinFunction)
 
-    innerJoinedStream.print("innerJoinedStream")
+    innerJoinedStream.name("InnerJoinedStream").print()
+    leftJoinedStream.name("LeftJoinedStream").print()
+    rightJoinedStream.name("RightJoinedStream").print()
 
     env.execute("InnerLeftRightJoinTest")
   }
-}
-
-class InnerJoinFunction extends CoGroupFunction[StockTransaction,StockSnapshot,(String,String,String,Double,Double,String)]{
-  override def coGroup(first: lang.Iterable[StockTransaction], second: lang.Iterable[StockSnapshot], out: Collector[(String, String, String, Double, Double, String)]): Unit = {
-    import scala.collection.JavaConverters._
-    val scalaT1 = first.asScala.toList
-    val scalaT2 = second.asScala.toList
 
 
-    println(scalaT1.size)
-    println(scalaT2.size)
-    /**
-     * Inner join 要比较的是同一个key下，同一个时间窗口内
-     */
-    if(scalaT1.nonEmpty && scalaT2.nonEmpty){
-      for(transaction <- scalaT1){
-        for(snapshot <- scalaT2){
-          out.collect(transaction.txCode,transaction.txTime,snapshot.mdTime,transaction.txValue,snapshot.mdValue,"Inner Join Test")
+  class InnerJoinFunction extends CoGroupFunction[StockTransaction, StockSnapshot, (String, String, String, Double, Double, String)] {
+    override def coGroup(first: lang.Iterable[StockTransaction], second: lang.Iterable[StockSnapshot], out: Collector[(String, String, String, Double, Double, String)]): Unit = {
+      import scala.collection.JavaConverters._
+      val scalaT1 = first.asScala.toList
+      val scalaT2 = second.asScala.toList
+
+
+      println(scalaT1.size)
+      println(scalaT2.size)
+
+      /**
+       * Inner join 要比较的是同一个key下，同一个时间窗口内
+       */
+      if (scalaT1.nonEmpty && scalaT2.nonEmpty) {
+        for (transaction <- scalaT1) {
+          for (snapshot <- scalaT2) {
+            out.collect(transaction.txCode, transaction.txTime, snapshot.mdTime, transaction.txValue, snapshot.mdValue, "Inner Join Test")
+          }
+        }
+      }
+
+    }
+  }
+
+  class LeftJoinFunction extends CoGroupFunction[StockTransaction, StockSnapshot, (String, String, String, Double, Double, String)] {
+    override def coGroup(T1: java.lang.Iterable[StockTransaction], T2: java.lang.Iterable[StockSnapshot], out: Collector[(String, String, String, Double, Double, String)]): Unit = {
+      /**
+       * 将Java中的Iterable对象转换为Scala的Iterable
+       * scala的集合操作效率高，简洁
+       */
+      import scala.collection.JavaConverters._
+      val scalaT1 = T1.asScala.toList
+      val scalaT2 = T2.asScala.toList
+
+      /**
+       * Left Join要比较的是同一个key下，同一个时间窗口内的数据
+       */
+      if (scalaT1.nonEmpty && scalaT2.isEmpty) {
+        for (transaction <- scalaT1) {
+          out.collect(transaction.txCode, transaction.txTime, "", transaction.txValue, 0, "Left Join Test")
         }
       }
     }
-
   }
+
+  class RightJoinFunction extends CoGroupFunction[StockTransaction, StockSnapshot, (String, String, String, Double, Double, String)] {
+    override def coGroup(T1: java.lang.Iterable[StockTransaction], T2: java.lang.Iterable[StockSnapshot], out: Collector[(String, String, String, Double, Double, String)]): Unit = {
+      /**
+       * 将Java中的Iterable对象转换为Scala的Iterable
+       * scala的集合操作效率高，简洁
+       */
+      import scala.collection.JavaConverters._
+      val scalaT1 = T1.asScala.toList
+      val scalaT2 = T2.asScala.toList
+
+      /**
+       * Right Join要比较的是同一个key下，同一个时间窗口内的数据
+       */
+      if (scalaT1.isEmpty && scalaT2.nonEmpty) {
+        for (snapshot <- scalaT2) {
+          out.collect(snapshot.mdCode, "", snapshot.mdTime, 0, snapshot.mdValue, "Right Join Test")
+        }
+      }
+    }
+  }
+
+
+  case class StockTransaction(txTime: String, txCode: String, txValue: Double)
+
+  case class StockSnapshot(mdTime: String, mdCode: String, mdValue: Double)
+
 }
 
 
-class CustomWatermarkExtractor extends AssignerWithPeriodicWatermarks[String]{
-
-  var currentTimestamp = Long.MinValue
-
-  override def getCurrentWatermark: Watermark = {
-    new Watermark(
-      if(currentTimestamp == Long.MinValue) Long.MinValue
-      else currentTimestamp - 1
-    )
-  }
-
-  override def extractTimestamp(element: String, previousElementTimestamp: Long): Long = {
-    this.currentTimestamp = System.currentTimeMillis()
-    currentTimestamp
-  }
-}
-
-
-case class StockTransaction(txTime:String,txCode:String,txValue:Double)
-
-case class StockSnapshot(mdTime:String,mdCode:String,mdValue:Double)
