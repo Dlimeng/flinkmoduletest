@@ -1,12 +1,13 @@
 package com.lm.flink.table
 
-import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.api.common.typeinfo.{TypeInformation, Types}
 import org.apache.flink.api.scala.ExecutionEnvironment
-import org.apache.flink.table.api.{Table, TableEnvironment}
-import org.apache.flink.table.api.scala.BatchTableEnvironment
-import org.apache.flink.table.descriptors.BatchTableDescriptor
+import org.apache.flink.configuration.Configuration
+import org.apache.flink.table.api._
+import org.apache.flink.table.api.scala._
 
-import scala.collection.mutable.ListBuffer
+
+
 
 
 /**
@@ -14,10 +15,20 @@ import scala.collection.mutable.ListBuffer
  * @Description TODO
  * @Date 2020/10/29 18:04
  * @Created by limeng
+ *
+ *   org/apache/flink/table/api/TableEnvironment.java
+ *   org/apache/flink/table/api/java/BatchTableEnvironment.java
+ *   org/apache/flink/table/api/scala/BatchTableEnvironment.scala 批处理场景，
+ *   org/apache/flink/table/api/java/StreamTableEnvironment.java
+ *   org/apache/flink/table/api/scala/StreamTableEnvironment.scala 流处理
+ *
+ *  print() 里面
  */
 object WordCountSQL {
 
   def main(args: Array[String]): Unit = {
+
+
 
     val env = ExecutionEnvironment.getExecutionEnvironment
 
@@ -28,21 +39,14 @@ object WordCountSQL {
     val wordStr:String = "Hello Flink Hello TOM"
     val words =  wordStr.split("\\W+")
 
-    val lines = env.fromCollection(words.map(m=> WC(m,1)))
-
-    val table = tEnv.fromDataSet(lines);
-
-    tEnv.createTemporaryView("WordCount",table)
-
-
-    val table1: Table = tEnv.sqlQuery("select * from WordCount")
+    val lines: DataSet[WC] = env.fromCollection(words.map(m => WC(m, 1)))
 
 
 
+    tEnv.fromDataSet(lines).groupBy("word").select('word,'frequency.sum).toDataSet[WC].print()
 
 
-
-    env.execute("java_job");
+   // env.execute("java_job");
   }
 
   case class WC(word:String,frequency:Long) extends Serializable
