@@ -1,7 +1,9 @@
 package com.lm.flink.table
 
 import com.lm.flink.datastream.source.OrderSourceFunction
+import org.apache.flink.api.common.typeinfo.Types
 import org.apache.flink.api.scala.ExecutionEnvironment
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.table.api._
 import org.apache.flink.table.api.scala._
@@ -16,11 +18,24 @@ object StreamTableEnvironmentTest {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     val tableEnv = StreamTableEnvironment.create(env)
 
+
+//    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+//    env.enableCheckpointing(4000)
+//    env.getConfig.setAutoWatermarkInterval(1000)
+
     import org.apache.flink.api.scala._
-    val dataStream: DataStream[(Long, String, Int, Long)] = env.addSource(new OrderSourceFunction(10, 0.01f, 60, 0))
+    val dataStream: DataStream[(Long, String, Int, Long)] = env.addSource(OrderSourceFunction.apply())
+    dataStream.print("dataStream")
 
-    dataStream.print()
+    val table = tableEnv.fromDataStream(dataStream)
+
+    tableEnv.createTemporaryView("test",table)
+
+    val table1 = tableEnv.sqlQuery("select * from test")
 
 
+    table1.toRetractStream[(Long, String, Int, Long)].print()
+
+    env.execute("StreamTableEnvironmentTest")
   }
 }

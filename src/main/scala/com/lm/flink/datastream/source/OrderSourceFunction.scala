@@ -8,7 +8,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction
 import lombok.extern.slf4j.Slf4j
 import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSnapshotContext}
 import org.apache.flink.types.Row
-
+import java.lang.{Long => JavaLong}
 import scala.util.Random
 /**
  * @Classname OrderSourceFunction
@@ -17,7 +17,7 @@ import scala.util.Random
  * @Created by limeng
  */
 
-class OrderSourceFunction(val numKeys:Int,val rowsPerKeyAndSecond:Float,val durationSeconds:Int,val offsetSeconds:Int) extends SourceFunction[(Long, String,Int, Long),ListCheckpointed[Long]]{
+class OrderSourceFunction() extends SourceFunction[(Long, String,Int, Long)] with ListCheckpointed[JavaLong]{
 
   var sleepMs:Int = _
   var durationMs:Int = _
@@ -25,23 +25,22 @@ class OrderSourceFunction(val numKeys:Int,val rowsPerKeyAndSecond:Float,val dura
 
   val products = Array[String]("PC", "Gucci", "Channel", "YSL")
 
-
-  def apply(numKeys: Int, rowsPerKeyAndSecond: Float, durationSeconds: Int, offsetSeconds: Int): OrderSourceFunction = {
-    durationMs  =  durationSeconds * 1000
-    sleepMs = (1000 / rowsPerKeyAndSecond).toInt
-    new OrderSourceFunction(numKeys, rowsPerKeyAndSecond, durationSeconds, offsetSeconds)
+  def init()={
+    ms = 0
+    durationMs  =  10 * 1000
+    sleepMs = (1000 / 10).toInt
   }
 
 
   override def run(ctx: SourceFunction.SourceContext[(Long, String, Int, Long)]): Unit = {
-    val offsetMS: Long = offsetSeconds * 2000L
-    import scala.collection.JavaConverters._
 
     while (ms < durationMs) {
       ctx.getCheckpointLock synchronized {
-        for(i<- 0 until(numKeys)){
+        for(i<- 0 until 100){
+         // println("测试 i:"+i)
           ctx.collect((i + 0L,products(i % 4),new Random().nextInt(100),System.currentTimeMillis()))
         }
+        ms += sleepMs
       }
       Thread.sleep(sleepMs)
     }
@@ -53,13 +52,19 @@ class OrderSourceFunction(val numKeys:Int,val rowsPerKeyAndSecond:Float,val dura
   }
 
 
+  override def snapshotState(checkpointId: Long, timestamp: Long): java.util.List[JavaLong] = Collections.singletonList(ms)
 
-  override def snapshotState(checkpointId: Long, timestamp: Long): java.util.List[Long] = Collections.singletonList(ms)
-
-  override def restoreState(state: java.util.List[Long]): Unit = {
+  override def restoreState(state: java.util.List[JavaLong]): Unit = {
     import scala.collection.JavaConverters._
     state.asScala.foreach(f=>{
       ms += f
     })
+  }
+}
+object OrderSourceFunction{
+  def apply(): OrderSourceFunction = {
+    val function = new OrderSourceFunction()
+    function.init()
+    function
   }
 }
