@@ -10,6 +10,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.table.api._
 import org.apache.flink.table.api.scala._
+import org.apache.flink.table.shaded.org.joda.time.DateTime
 import org.apache.flink.types.Row
 /**
  * @Classname Windows
@@ -29,26 +30,20 @@ object Windows {
 
     import org.apache.flink.api.scala._
 
-    val dataStream = env.addSource(OrderSourceFunction.apply()).map(new MapFunction[(Long, String, Int, Long),Row] {
-      override def map(value: (Long, String, Int, Long)): Row = {
-        val row1 = new Row(4)
-        row1.setField(0, value._1)
-        row1.setField(1, value._2)
-        row1.setField(2, value._3)
-        row1.setField(3,value._4)
-        row1
-      }
-    })
+
+
+    val dataStream = env.addSource(OrderSourceFunction.apply())
 
     dataStream.print("dataStream")
 
-    val table = tableEnv.fromDataStream[Row](dataStream)
+    val table = dataStream.toTable(tableEnv,'user, 'product, 'amount,'times.rowtime )
+
 
     tableEnv.createTemporaryView("test",table)
 
-    val table1 = tableEnv.sqlQuery("select * from test ")
+    val table1 = tableEnv.sqlQuery("select user as wStart from test GROUP BY tumble(times, INTERVAL '5' SECOND),user")
 
-    table1.toRetractStream[Row].print()
+    table1.toRetractStream[(Long, String, Int, Long)].print()
 
     env.execute("Windows")
   }
