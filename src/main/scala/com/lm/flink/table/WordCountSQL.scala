@@ -45,7 +45,6 @@ object WordCountSQL {
 
     tEnv.fromDataSet(lines).groupBy("word").select('word,'frequency.sum).toDataSet[WC].print()
 
-
    // env.execute("java_job");
   }
 

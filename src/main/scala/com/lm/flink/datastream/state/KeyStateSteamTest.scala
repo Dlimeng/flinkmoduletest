@@ -1,6 +1,9 @@
 package com.lm.flink.datastream.state
 
-import org.apache.commons.compress.utils.Lists
+
+import java.util.Collections
+
+
 import org.apache.flink.api.common.functions.RichFlatMapFunction
 import org.apache.flink.api.common.state.{ListState, ListStateDescriptor}
 import org.apache.flink.api.common.typeinfo.TypeInformation
@@ -49,13 +52,14 @@ class  ThresholdWarning(val threshold:Long,val numberOfTimes:Int) extends RichFl
       abnormalData.add(inputValue)
     }
 
-    val list = Lists.newArrayList(abnormalData.get().iterator())
 
-    //如果不正常的数据出现达到一定次数，则输出报警信息
-    if(list.size() >= numberOfTimes){
-      out.collect(Tuple2(value._1 + " 超过阈值 ",list.toList))
-      //报警信息输出后，清空状态
-      abnormalData.clear()
-    }
+//    val list = Lists.newArrayList(abnormalData.get().iterator())
+//
+//    //如果不正常的数据出现达到一定次数，则输出报警信息
+//    if(list.size() >= numberOfTimes){
+//      out.collect(Tuple2(value._1 + " 超过阈值 ",list.toList))
+//      //报警信息输出后，清空状态
+//      abnormalData.clear()
+//    }
   }
 }
