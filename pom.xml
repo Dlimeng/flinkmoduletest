@@ -99,10 +99,16 @@
         </dependency>
 
         <dependency>
-        <groupId>org.apache.flink</groupId>
-        <artifactId>flink-connector-hive_2.11</artifactId>
-        <version>${flink.version}</version>
-    </dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-hive_2.11</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-metastore</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.hive</groupId>
