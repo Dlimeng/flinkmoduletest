@@ -102,8 +102,24 @@
       <scope>provided</scope>
       <exclusions>
         <exclusion>
+          <artifactId>commons-httpclient</artifactId>
+          <groupId>commons-httpclient</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>commons-net</artifactId>
           <groupId>commons-net</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty</artifactId>
+          <groupId>org.mortbay.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jersey-json</artifactId>
+          <groupId>com.sun.jersey</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jersey-server</artifactId>
+          <groupId>com.sun.jersey</groupId>
         </exclusion>
         <exclusion>
           <artifactId>jasper-compiler</artifactId>
