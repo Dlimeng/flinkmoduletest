@@ -17,24 +17,24 @@ object FlinkHiveIntegration {
       .inBatchMode()
       .build()
 
-    val tableEnv = TableEnvironment.create(settings)
-
-    val name:String = "myhive"
-    val defaultDatabase:String = "linkis_db"
-    val hiveConfDir:String = "/etc/hive/conf"
-    val version:String = "1.1.0"
-
-    val hive = new HiveCatalog(name,defaultDatabase,hiveConfDir,version)
-
-    tableEnv.registerCatalog(name,hive)
-
-    tableEnv.useCatalog(name)
-
-
-    val table = tableEnv.sqlQuery("select id from test1")
-
-
-    table.insertInto("linkis_db.test1")
+//    val tableEnv = TableEnvironment.create(settings)
+//
+//    val name:String = "myhive"
+//    val defaultDatabase:String = "linkis_db"
+//    val hiveConfDir:String = "/etc/hive/conf"
+//    val version:String = "1.1.0"
+//
+//    val hive = new HiveCatalog(name,defaultDatabase,hiveConfDir,version)
+//
+//    tableEnv.registerCatalog(name,hive)
+//
+//    tableEnv.useCatalog(name)
+//
+//
+//    val table = tableEnv.sqlQuery("select id from test1")
+//
+//
+//    table.insertInto("linkis_db.test1")
   }
 
   case class WcTest(id:String) extends Serializable
