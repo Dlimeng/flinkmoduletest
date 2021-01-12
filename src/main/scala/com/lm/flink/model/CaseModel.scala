@@ -11,3 +11,5 @@ import java.util.Date
 case class SourceBean(id:String,name:String,age:Int,ctime:Date) extends Serializable
 
 case class WordWithCount(word:String,count:Long) extends Serializable
+
+case class SensorReading(id:String,timestamp:Long,temperature:Double) extends Serializable
