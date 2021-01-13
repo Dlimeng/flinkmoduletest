@@ -4,8 +4,6 @@ import com.lm.flink.model.SensorReading;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.state.ReducingState;
 import org.apache.flink.api.common.state.ReducingStateDescriptor;
-import org.apache.flink.api.common.state.ValueState;
-import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeutils.base.LongSerializer;
 import org.apache.flink.streaming.api.windowing.triggers.Trigger;
 import org.apache.flink.streaming.api.windowing.triggers.TriggerResult;
@@ -31,6 +29,7 @@ public class CountTrigger extends Trigger<SensorReading, TimeWindow> {
 
     @Override
     public TriggerResult onElement(SensorReading element, long timestamp, TimeWindow window, TriggerContext ctx) throws Exception {
+
         ctx.registerProcessingTimeTimer(window.maxTimestamp());
 
         ReducingState<Long> count = ctx.getPartitionedState(stateDesc);
@@ -50,12 +49,12 @@ public class CountTrigger extends Trigger<SensorReading, TimeWindow> {
 
     @Override
     public TriggerResult onEventTime(long time, TimeWindow window, TriggerContext ctx) throws Exception {
-        return TriggerResult.CONTINUE;
+        return TriggerResult.FIRE;
     }
 
     @Override
     public void clear(TimeWindow window, TriggerContext ctx) throws Exception {
-
+        ctx.getPartitionedState(stateDesc).clear();
     }
 
     @Override
@@ -67,12 +66,9 @@ public class CountTrigger extends Trigger<SensorReading, TimeWindow> {
         }
     }
 
-    @Override
-    public boolean canMerge() {
-        return false;
-    }
 
     private static class  Sum implements ReduceFunction<Long>{
+        private static final long serialVersionUID = 2L;
         @Override
         public Long reduce(Long value1, Long value2) throws Exception {
             return value1 + value2;

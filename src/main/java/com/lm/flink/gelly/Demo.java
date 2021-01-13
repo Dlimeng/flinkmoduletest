@@ -20,6 +20,7 @@ import java.util.List;
 public class Demo {
     public static void main(String[] args) throws Exception {
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+
         List<Vertex<Long, String>> vs = new ArrayList<>();
 
         vs.add(new Vertex<>(3L,"limeng"));

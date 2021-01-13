@@ -34,7 +34,7 @@ object FlinkSourceTrigger{
 
      env.addSource(new SensorSource).keyBy(f=>f.id)
        .timeWindow(Time.milliseconds(10))
-      //.trigger(ContinuousProcessingTimeTrigger.of(Time.milliseconds(20)))
+       .trigger(new CountTrigger(10))
        .process(new ProcessWindowFunction[SensorReading,SensorReading,String,TimeWindow] {
        override def process(key: String, context: Context, elements: Iterable[SensorReading], out: Collector[SensorReading]): Unit = {
          println(s"start size:${elements.size}")
