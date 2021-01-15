@@ -18,6 +18,9 @@ import java.util.List;
  * @Created by limeng
  * 迭代图计算
  * 最短距离
+ * 让我们考虑使用以顶点为中心的迭代来计算单源最短路径。最初，每个顶点都具有无限距离的值，除了源顶点，其值为零。
+ * 在第一个超级步骤期间，源将距离传播到其邻居。在以下超级步骤中，每个顶点检查其接收的消息并选择它们之间的最小距离。
+ * 如果距离小于其当前值，则更新其状态并为其邻居生成消息。
  */
 public class GellyDemo2 {
     public static void main(String[] args) throws Exception {

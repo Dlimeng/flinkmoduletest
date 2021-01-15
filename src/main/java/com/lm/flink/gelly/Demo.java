@@ -134,9 +134,9 @@ public class Demo {
                 return vertexValue + inputValue.getValue();
             }
         });
-//        System.out.println("updatedGraph5");
-//        updatedGraph5.getVertices().print();
-//        updatedGraph5.getEdges().print();
+        System.out.println("updatedGraph5");
+        updatedGraph5.getVertices().print();
+        updatedGraph5.getEdges().print();
 
         //所有边的方向都已经反转
         /**

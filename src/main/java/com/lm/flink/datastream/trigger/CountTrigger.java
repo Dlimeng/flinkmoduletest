@@ -5,6 +5,7 @@ import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.state.ReducingState;
 import org.apache.flink.api.common.state.ReducingStateDescriptor;
 import org.apache.flink.api.common.typeutils.base.LongSerializer;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.windowing.triggers.Trigger;
 import org.apache.flink.streaming.api.windowing.triggers.TriggerResult;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
@@ -15,7 +16,7 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
  * @Date 2021/1/12 19:32
  * @Created by limeng
  */
-public class CountTrigger extends Trigger<SensorReading, TimeWindow> {
+public class CountTrigger extends Trigger<FlinkSourceTrigger.model, TimeWindow> {
     private static final long serialVersionUID = 1L;
 
     private final long maxCount;
@@ -28,7 +29,7 @@ public class CountTrigger extends Trigger<SensorReading, TimeWindow> {
     }
 
     @Override
-    public TriggerResult onElement(SensorReading element, long timestamp, TimeWindow window, TriggerContext ctx) throws Exception {
+    public TriggerResult onElement(FlinkSourceTrigger.model element, long timestamp, TimeWindow window, TriggerContext ctx) throws Exception {
 
         ctx.registerProcessingTimeTimer(window.maxTimestamp());
 
