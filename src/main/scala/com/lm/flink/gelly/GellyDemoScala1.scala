@@ -2,10 +2,13 @@ package com.lm.flink.gelly
 
 import java.util
 
+import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.DataSet
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
+import org.apache.flink.graph.pregel.ComputeFunction
 import org.apache.flink.graph.scala.Graph
+import org.apache.flink.graph.spargel.{GatherFunction, MessageIterator, ScatterFunction}
 import org.apache.flink.graph.{Edge, Vertex, VertexJoinFunction}
 
 import scala.collection.mutable.ListBuffer
@@ -16,7 +19,7 @@ import scala.collection.mutable.ListBuffer
  * @Date 2021/1/15 17:43
  * @Created by limeng
  */
-object GellyDemo1 {
+object GellyDemoScala1 {
   def main(args: Array[String]): Unit = {
     val env = ExecutionEnvironment.getExecutionEnvironment
 
@@ -64,17 +67,36 @@ object GellyDemo1 {
     })
 
     //groupvd
-    val groupVD = graphs.joinWithVertices(roots,new VertexJoinFunction[Int,Int]{
+    val groupVD: Graph[Long, GroupVD, Double] = graphs.joinWithVertices(roots, new VertexJoinFunction[Int, Int] {
       override def vertexJoin(vertexValue: Int, inputValue: Int): Int = {
         inputValue
       }
-    }).mapVertices(m=>{
-      if(m.getValue != Int.MaxValue){
+    }).mapVertices(m => {
+      if (m.getValue != Int.MaxValue) {
         GroupVD(Set(MsgScore(m.getId, m.getId, m.getId, 100D)), Set[MsgScore](), Set(m.getId))
-      }else{
+      } else {
         GroupVD(Set[MsgScore](), Set[MsgScore](), Set())
       }
     })
+
+    val quaGroup = groupVD.runScatterGatherIteration(new GSendMsg,new GMergeMsg,10)
+
+    println("quaGroup.getVertices")
+    quaGroup.getVertices.print()
+
+    val mm = quaGroup.getVertices.flatMap(f=>{
+      f.getValue.accept.groupBy(_.groupId).map(m=>{
+        val rel = m._2.map(msg=>{
+          MemRel(msg.from,msg.to,msg.score,1)
+        })
+        GroupMem(f.getId, m._1, m._2.map(_.score).sum, 1, 0, rel)
+      })
+    })
+
+
+    mm.sortPartition(_.targetId,Order.ASCENDING).print()
+
+
 
 
 
@@ -82,9 +104,53 @@ object GellyDemo1 {
 
   }
 
+  class GSendMsg extends ScatterFunction[Long,GroupVD,GroupVD,Double]{
+    override def sendMessages(vertex: Vertex[Long, GroupVD]): Unit = {
+      val iter = this.getEdges.iterator()
+
+      while (iter.hasNext){
+        val edge = iter.next()
+        val from = edge.getSource
+        val to = edge.getTarget
+
+        val gvd = vertex.getValue
+
+        val unsent = gvd.accept.diff(gvd.sent)
+
+        if(unsent.nonEmpty && !gvd.ids.contains(to)){
+
+          val msg = unsent.map(a=>{
+            MsgScore(a.groupId,from,to,edge.getValue)
+          })
+
+          this.sendMessageTo(to, GroupVD(msg, Set[MsgScore](), gvd.ids ++ Set(to)))
+          this.sendMessageTo(from, GroupVD(Set[MsgScore](), msg, gvd.ids ))
+        }
+
+      }
+    }
+  }
+
+  class GMergeMsg extends GatherFunction[Long,GroupVD,GroupVD]{
+    override def updateVertex(vertex: Vertex[Long, GroupVD], inMessages: MessageIterator[GroupVD]): Unit = {
+      val iter = inMessages.iterator()
+      var vv = vertex.getValue
 
 
-  case class MsgScore(groupId: Long, from: Long, to: Long, score: Double) extends Serializable
+      while (iter.hasNext){
+        val edge = iter.next()
+        vv = GroupVD(vv.accept ++ edge.accept,vv.sent ++ edge.sent,vv.ids ++ edge.ids)
+      }
+
+      this.setNewVertexValue(vv)
+    }
+  }
+
+
+
+  case class MsgScore(groupId: Long, from: Long, to: Long, score: Double) extends Serializable{
+    override def toString: String = from + "#" + to + "#"+score
+  }
 
   case class GroupVD(accept: Set[MsgScore], sent: Set[MsgScore], ids: Set[Long]) extends Serializable
 
