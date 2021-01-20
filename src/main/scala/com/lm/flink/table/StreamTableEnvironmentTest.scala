@@ -7,7 +7,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.table.api._
 import org.apache.flink.table.api.scala._
-import org.apache.flink.table.shaded.org.joda.time.DateTime
+
 /**
  * @Classname StreamTableEnvironmentTest
  * @Description TODO

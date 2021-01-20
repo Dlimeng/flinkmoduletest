@@ -17,6 +17,7 @@
         <hive.version>1.1.0</hive.version>
         <hadoop.version>2.6.0</hadoop.version>
         <flink.version>1.10.0</flink.version>
+        <scala.version>2.11.8</scala.version>
     </properties>
 
     <dependencies>
@@ -272,13 +273,11 @@
             <version>${flink.version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.flink</groupId>-->
-<!--            <artifactId>flink-table</artifactId>-->
-<!--            <version>${flink.version}</version>-->
-<!--            <type>pom</type>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-planner-blink_2.11</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -374,19 +373,38 @@
                 <version>3.3.1</version>
                 <executions>
                     <execution>
+                        <id>eclipse-add-source</id>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-test-compile-first</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
                             <goal>testCompile</goal>
                         </goals>
-                        <configuration>
-                            <args>
-                                <!--<arg>-make:transitive</arg>-->
-                                <arg>-dependencyfile</arg>
-                                <arg>${project.build.directory}/.scala_dependencies</arg>
-                            </args>
-                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>attach-scaladocs</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>doc-jar</goal>
+                        </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                    <recompileMode>incremental</recompileMode>
+                    <useZincServer>true</useZincServer>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

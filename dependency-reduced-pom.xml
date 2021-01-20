@@ -38,18 +38,38 @@
         <version>3.3.1</version>
         <executions>
           <execution>
+            <id>eclipse-add-source</id>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>scala-compile-first</id>
+            <phase>process-resources</phase>
             <goals>
               <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>scala-test-compile-first</id>
+            <phase>process-test-resources</phase>
+            <goals>
               <goal>testCompile</goal>
             </goals>
-            <configuration>
-              <args>
-                <arg>-dependencyfile</arg>
-                <arg>${project.build.directory}/.scala_dependencies</arg>
-              </args>
-            </configuration>
+          </execution>
+          <execution>
+            <id>attach-scaladocs</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>doc-jar</goal>
+            </goals>
           </execution>
         </executions>
+        <configuration>
+          <scalaVersion>${scala.version}</scalaVersion>
+          <recompileMode>incremental</recompileMode>
+          <useZincServer>true</useZincServer>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
@@ -165,14 +185,15 @@
     </dependency>
   </dependencies>
   <properties>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <hive.version>1.1.0</hive.version>
+    <flink.version>1.10.0</flink.version>
     <java.version>1.8</java.version>
     <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-    <flink.version>1.10.0</flink.version>
-    <hadoop.version>2.6.0</hadoop.version>
-    <hive.version>1.1.0</hive.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project-sourceEncoding>UTF-8</project-sourceEncoding>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <hadoop.version>2.6.0</hadoop.version>
+    <scala.version>2.11.8</scala.version>
   </properties>
 </project>
 
