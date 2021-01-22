@@ -1,7 +1,9 @@
 package com.lm.flink.dataset.table
 
 import org.apache.flink.api.scala.ExecutionEnvironment
-import org.apache.flink.table.api.scala.BatchTableEnvironment
+import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.apache.flink.table.api.{EnvironmentSettings, TableEnvironment}
+import org.apache.flink.table.api.scala.{BatchTableEnvironment, StreamTableEnvironment}
 import org.apache.flink.table.catalog.hive.HiveCatalog
 
 /**
@@ -15,8 +17,10 @@ class HiveDemo {
 }
 object HiveDemo{
   def main(args: Array[String]): Unit = {
-    val fbEnv = ExecutionEnvironment.getExecutionEnvironment
-    val tableEnv = BatchTableEnvironment.create(fbEnv)
+    val bsEnv = StreamExecutionEnvironment.getExecutionEnvironment
+    val bsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build()
+    val bsTableEnv  = StreamTableEnvironment.create(bsEnv,bsSettings)
+
 
     val name = "myhive"
     val defaultDatabase = "linkis_db"
@@ -25,15 +29,18 @@ object HiveDemo{
 
     val hiveCatalog = new HiveCatalog(name,defaultDatabase,hiveConfDir,version)
 
-    tableEnv.registerCatalog(name,hiveCatalog)
-    tableEnv.useCatalog(name)
+    bsTableEnv.registerCatalog(name,hiveCatalog)
+    bsTableEnv.useCatalog(name)
 
-    val sqlTable = tableEnv.sqlQuery("select * from test1")
+    val sqlTable = bsTableEnv.sqlQuery("select * from test1")
 
     import org.apache.flink.api.scala._
-    val toDataSet = tableEnv.toDataSet[TestModel](sqlTable)
 
-    toDataSet.print()
+    val retracts = bsTableEnv.toRetractStream[TestModel](sqlTable)
+
+    retracts.print()
+
+    bsTableEnv.execute("HiveDemo")
   }
 
   case class TestModel(id:String) extends Serializable
