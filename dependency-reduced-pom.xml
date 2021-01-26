@@ -117,6 +117,12 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.flink</groupId>
+      <artifactId>flink-connector-hive_2.11</artifactId>
+      <version>1.10.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
       <artifactId>flink-table-planner_2.11</artifactId>
       <version>1.10.0</version>
       <scope>provided</scope>
@@ -148,6 +154,62 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-shaded-hadoop-2</artifactId>
+      <version>2.6.5-8.0</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-net</artifactId>
+          <groupId>commons-net</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-el</artifactId>
+          <groupId>commons-el</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>java-xmlbuilder</artifactId>
+          <groupId>com.jamesmurty.utils</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-configuration</artifactId>
+          <groupId>commons-configuration</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-digester</artifactId>
+          <groupId>commons-digester</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gson</artifactId>
+          <groupId>com.google.code.gson</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>apacheds-kerberos-codec</artifactId>
+          <groupId>org.apache.directory.server</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>apacheds-i18n</artifactId>
+          <groupId>org.apache.directory.server</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>api-asn1-api</artifactId>
+          <groupId>org.apache.directory.api</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>api-util</artifactId>
+          <groupId>org.apache.directory.api</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jsch</artifactId>
+          <groupId>com.jcraft</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-daemon</artifactId>
+          <groupId>commons-daemon</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
       <version>2.6.0</version>
@@ -156,10 +218,6 @@
         <exclusion>
           <artifactId>commons-httpclient</artifactId>
           <groupId>commons-httpclient</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>commons-net</artifactId>
-          <groupId>commons-net</groupId>
         </exclusion>
         <exclusion>
           <artifactId>jetty</artifactId>
@@ -186,12 +244,24 @@
           <groupId>javax.servlet.jsp</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>commons-el</artifactId>
-          <groupId>commons-el</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>jets3t</artifactId>
           <groupId>net.java.dev.jets3t</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hadoop-auth</artifactId>
+          <groupId>org.apache.hadoop</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>curator-recipes</artifactId>
+          <groupId>org.apache.curator</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-net</artifactId>
+          <groupId>commons-net</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-el</artifactId>
+          <groupId>commons-el</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-configuration</artifactId>
@@ -202,16 +272,8 @@
           <groupId>com.google.code.gson</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>hadoop-auth</artifactId>
-          <groupId>org.apache.hadoop</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>jsch</artifactId>
           <groupId>com.jcraft</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>curator-recipes</artifactId>
-          <groupId>org.apache.curator</groupId>
         </exclusion>
       </exclusions>
     </dependency>

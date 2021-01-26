@@ -8,5 +8,7 @@ package com.lm.flink.shell
  * Iloop
  */
 class FlinkILoopDemo {
+  def main(args: Array[String]): Unit = {
 
+  }
 }

@@ -21,14 +21,16 @@ object AsyncIOExample {
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
 
+    env.setParallelism(10)
     import org.apache.flink.api.scala._
     val  inputStream = env.addSource(new CustomNonParallelSourceFunction)
 
-    val result = AsyncDataStream.orderedWait(inputStream,new SampleAsyncFunction,1000,TimeUnit.MILLISECONDS,20)
+    val result1 = AsyncDataStream.orderedWait(inputStream,new SampleAsyncFunction,1000,TimeUnit.MILLISECONDS,20)
+    val result2 = AsyncDataStream.unorderedWait(inputStream,new SampleAsyncFunction,1000,TimeUnit.MILLISECONDS,20)
 
 
-    result.print()
-
+    result1.print("result1")
+    result2.print("result2")
 
     env.execute("AsyncIOExample")
 
@@ -54,7 +56,7 @@ object AsyncIOExample {
   class SampleAsyncFunction extends RichAsyncFunction[Long,String] {
 
     val failRatio = 0.001f
-    val sleepFactor = 100L
+    val sleepFactor = 1000L
     val shutdownWaitTS = 20000L
 
     override def open(parameters: Configuration): Unit = {
@@ -75,7 +77,7 @@ object AsyncIOExample {
 
             if(ThreadLocalRandom.current().nextFloat() < failRatio){
               resultFuture.completeExceptionally(new Exception("lilili"))
-            }else resultFuture.complete(List("key-" + (input % 10)))
+            }else resultFuture.complete(List("key-" + input))
 
           }catch {
             case e:Exception=>{
